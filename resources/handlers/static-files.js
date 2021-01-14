@@ -7,9 +7,11 @@ function getContentType(url) {
     } else if (url.endsWith('html')) {
         return 'text/html'
     } else if (url.endsWith('png')) {
-        return 'image/png'
+        return 'text/png'
     } else if (url.endsWith('js')) {
         return 'text/js'
+    } else if (url.endsWith('')) {
+        return "application/json"
     }
 }
 
@@ -27,11 +29,12 @@ module.exports = (req, res) => {
                 res.end();
                 return
             }
-            console.log('static files.js [31] pathname is ', pathname);
+            //console.log('static files.js [31] pathname is ', pathname);
             res.writeHead(
                 200,
                 {"Content-Type": getContentType(pathname)}
             );
+            //console.log('the data is', data);
             res.write(data);
             res.end();
         })
