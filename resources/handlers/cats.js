@@ -23,8 +23,21 @@ module.exports = (req, res) => {
         index.on('error', (err) => {
             console.log(err);
         });
+
     } else if (pathname === '/cats/add-breed' && req.method === 'GET') {
-        // TODO...
+        let filePath = path.normalize(path.join(__dirname, '../views/addBreed.html'));
+
+        const index = fs.createReadStream(filePath);
+
+        index.on('data', (data) => {
+            res.write(data);
+        });
+        index.on('end', () => {
+            res.end();
+        });
+        index.on('error', (err) => {
+            console.log(err);
+        });
     } else {
         return true;
     }

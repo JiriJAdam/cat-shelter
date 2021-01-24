@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/JiriJAdam/cat-shelter/issues"
   },
-  "homepage": "https://github.com/JiriJAdam/cat-shelter#readme"
+  "homepage": "https://github.com/JiriJAdam/cat-shelter#readme",
+  "dependencies": {
+    "nodemon": "^2.0.7"
+  }
 }
