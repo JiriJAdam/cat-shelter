@@ -1,8 +1,10 @@
 const url = require('url');
 const fs = require('fs');
 const path = require('path');
-//const cats = require('../data/cats.json');
-//const breeds = require('../data/breeds.json');
+const qs = require('querystring');
+const formidable = require('formidable');
+const cats = require('../data/cats.json');
+const breeds = require('../data/breeds.json');
 
 
 module.exports = (req, res) => {
@@ -74,11 +76,24 @@ module.exports = (req, res) => {
         })
     } else if (pathname === '/cats/add-breed' && req.method === 'POST') {
         let formData = "";
+        
         req.on('data', (data) => {
-            console.log("the breed form data is", data);
+            console.log("the breed form data is", data.toString());
             formData += data;
-            console.log("the new data is", formData);
-        })
+            console.log("the new data is", formData.breed);
+            console.log('I want the form data to be just "testing"');
+            let parsedData = qs.decode(formData);
+            console.log("the parsed data is", parsedData.breed);
+
+            fs.readFile("./data/breeds.json", 'utf8', (err, data) => {
+                if (err) {
+                    console.error(err)
+                    return
+                }
+                let currentBreeds = JSON.parse(data);
+                console.log("the breeds.json data is" , JSON.parse(data));
+            })
+        });
     } else {
         return true;
     }
