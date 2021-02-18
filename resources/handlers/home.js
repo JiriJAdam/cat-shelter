@@ -1,5 +1,5 @@
 const url = require('url');
-const fs = require('fs');
+const fs = require('fs'); // File System
 const path = require('path');
 const qs = require('querystring');
 const formidable = require('formidable');
@@ -39,7 +39,12 @@ module.exports = (req, res) => {
         const index = fs.createReadStream(filePath);
 
         index.on('data', (data) => {
-            res.write(data);
+            console.log("the brees are currently ", breeds)
+            let catBreedPlaceHolder = breeds.map( (breed) => `<option value"${breed}">${breed}</option>`);
+            console.log(catBreedPlaceHolder);
+            let modifiedData = data.toString().replace('{{catBreeds}}', catBreedPlaceHolder)
+                                                    //        <option value="Fluffy Cat">Fluffy Cat</option>
+            res.write(modifiedData);
         });
         index.on('end', () => {
             res.end();
@@ -63,7 +68,43 @@ module.exports = (req, res) => {
         })
     } else if (pathname === '/cats/add-cat' && req.method === 'POST') {
 
-        const index = fs.createReadStream(filePath);
+        let form = new formidable.IncomingForm();
+        
+            form.parse(req, (err, fields, files) => {
+                console.log(files.upload.name);
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+                const oldPath = files.upload.path;
+                const newPath = path.normalize(path.join('./content/images', files.upload.name));
+                console.log(files);
+
+                fs.rename(oldPath, newPath, err => {
+                    if (err) {
+                        console.log(err);
+                        return
+                    }
+                    console.log('Files were uploaded successfully');
+                })
+
+                fs.readFile('./data/cats.json', 'utf-8', (err, data) => {
+                    if (err) {
+                        console.log(err)
+                        return
+                    }
+
+                    const allCats = JSON.parse(data);
+                    allCats.push({ id: cats.length + 1, ...fields, image: files.upload.name});
+                    const json = JSON.stringify(allCats);
+                    fs.writeFile('./data/cats.json', json, () => {
+                        res.writeHead(301, { location: '/'});
+                        res.end();
+                    });
+                });
+                console.log("the fields are", fields);
+                console.log("the file(s) are", files);
+            });
 
         index.on('data', (data) => {
             res.write(data);
@@ -90,8 +131,23 @@ module.exports = (req, res) => {
                     console.error(err)
                     return
                 }
+                console.log('the raw dataJSON is', data)
                 let currentBreeds = JSON.parse(data);
-                console.log("the breeds.json data is" , JSON.parse(data));
+                currentBreeds.push(parsedData.breed);
+                console.log("the breeds.json parsed data is the variable currentBreeds" , currentBreeds);
+                let updatedBreeds = JSON.stringify(currentBreeds);
+                console.log("JSON updated ready to save updated breeds", updatedBreeds);
+
+                fs.writeFile('./data/breeds.json', updatedBreeds, 'utf-8', () => {
+                    if (err) {
+                        console.log(err)
+                    }
+                    console.log("The breeds was uploaded successfully...")
+                })
+
+                res.writeHead(201, { location: '/'});
+                res.end();
+
             })
         });
     } else {
